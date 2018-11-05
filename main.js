@@ -90,7 +90,7 @@ function groupCheck(){
     while (!flag){
         if (groups[0].teamAvg + 1 < groups[groups.length - 1].teamAvg){
             const weakLink = findWeakestLink(groups[0].students)
-            const strongLink = findStrongestLink(groups[groups.length - 1].students)
+            const strongLink = findStrongerLink(groups[groups.length - 1].students)
 
             console.log("weakLink: " + JSON.stringify(weakLink))
             console.log("strongLink: " + JSON.stringify(strongLink))
@@ -110,34 +110,26 @@ function groupCheck(){
                 return a.teamAvg-b.teamAvg
             })
         }
-        else{
+        else {
             flag = true
         }
     }
-    printGroups()
-    console.log(groups)
-    
+    printGroups()    
 }
 
 function findWeakestLink(arr){
-    let weakest = arr[0]
+    arr.sort(function(a, b){
+        return a.skill-b.skill
+    })
 
-    for (let i = 1; i < arr.length; i++){
-        if (weakest.skill > arr[i].skill){
-            weakest = arr[i]
-        }
-    }
-    return weakest;
+    return arr[0];
 }
-function findStrongestLink(arr){
-    let strongest = arr[0]
+function findStrongerLink(arr){
+    arr.sort(function(a, b){
+        return a.skill-b.skill
+    })
 
-    for (let i = 1; i < arr.length; i++){
-        if (strongest.skill < arr[i].skill){
-            strongest = arr[i]
-        }
-    }
-    return strongest;
+    return arr[1];
 }
 
 function classAvg(){
