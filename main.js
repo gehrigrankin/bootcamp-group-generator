@@ -6,12 +6,27 @@ const wordArrs = require('./wordArrays')
 const adjArr = wordArrs.adjArr
 const animArr = wordArrs.animArr
 
-const Group = function (teamName, s1, s2, s3) {
+const Group = function (teamName, students) {
   this.teamName = teamName
-  this.students = [s1, s2, s3]
-}
+  this.students = students
+  this.printStudents = function(){
+    for (let i = 0; i < this.students.length; i++){
+        console.log(this.students[i])
+    }
+  }
 
-const group1 = new Group()
+  this.getAvg = function(){
+    let total = 0;
+    
+    for (let i = 0; i < this.students.length; i++){
+        total += this.students[i].skill
+    }
+
+    this.teamAvg = total / this.students.length
+  }
+
+  this.getAvg();
+}
 
 let groups = []
 
@@ -23,12 +38,11 @@ function makeGroups(numGroups) {
     for (let i = 0; i < numGroups; i++) {
         let name = teamNameGen()
         let studentNames = pickStudent();
+        let groupAvg = getGroupAvg(studentNames);
 
-        console.log(students)
     
-        groups.push(new Group(name, studentNames[0], studentNames[1], studentNames[2]))
+        groups.push(new Group(name, studentNames))
     }
-    console.log(groups)
 }
 
 function teamNameGen() {
@@ -36,7 +50,6 @@ function teamNameGen() {
   name = [adjArr[Math.floor(Math.random() * adjArr.length)]]
   name.push(animArr[Math.floor(Math.random() * animArr.length)])
 
-  console.log(name)
   return name.join(" ")
 }
 
@@ -45,7 +58,6 @@ function pickStudent(){
 
     for (let i = 0; i < 3; i++){
         let student = students[Math.floor(Math.random() * students.length)];
-        console.log(student.name)
 
         groupStudents.push(student)
     
@@ -56,46 +68,76 @@ function pickStudent(){
     return groupStudents;
 }
 
+function getGroupAvg(arr){
+    let total = 0;
+
+    for (let i = 0; i < arr.length; i++){
+        total += arr[i].skill
+    }
+
+    return total / arr.length
+}
+
 function groupCheck(){
+    groups.sort(function(a, b){
+        return a.teamAvg-b.teamAvg
+    })
+    
+    printGroups()
+
     let flag = false;
 
-    groups.sort(function(a, b){
-        return b.skill-a.skill
-    })
-
     while (!flag){
-        let groupAvgs = [];
+        if (groups[0].teamAvg + 1 < groups[groups.length - 1].teamAvg){
+            const weakLink = findWeakestLink(groups[0].students)
+            const strongLink = findStrongestLink(groups[groups.length - 1].students)
 
-        for (let i = 0; i < groups.length; i++){
-            let groupTotal = 0;
+            console.log("weakLink: " + JSON.stringify(weakLink))
+            console.log("strongLink: " + JSON.stringify(strongLink))
 
-            for (let j = 0; j < groups[i].students.length; j++){
-                groupTotal += groups[i].students[j].skill
-            }
+            const weakI = groups[0].students.indexOf(weakLink)
+            const strongI = groups[groups.length - 1].students.indexOf(strongLink)
 
-            let avg = groupTotal / groups[i].students.length
-            console.log(avg)
-            groupAvgs.push(avg)
+            groups[0].students[weakI] = strongLink;
+            groups[groups.length - 1].students[strongI] = weakLink;
             
-            console.log(groupAvgs.sort())
+            groups[0].getAvg()
+            groups[groups.length - 1].getAvg()
+            console.log(groups[0].teamAvg)
+            console.log(groups[groups.length - 1].teamAvg)
             
-            if (groupAvgs[0] + .9 < groupAvgs[groupAvgs.length]){
-                let weakGroupSkills = []
-                let strongGroupSkills = []
-                
-                for (let j = 0; j < groups[i].students.length; j++){
-                    weakGroupSkills.push(groups[i].students[j].skill)
-                }
-
-                let weakLink = groups[i].student[weekGroupSkills.indexOf(weekGroupSkills.min())];
-                let strongLink = groups[].student[weekGroupSkills.indexOf(weekGroupSkills.min())];
-            }
+            groups.sort(function(a, b){
+                return a.teamAvg-b.teamAvg
+            })
         }
-
-        
-
-        flag = true
+        else{
+            flag = true
+        }
     }
+    printGroups()
+    console.log(groups)
+    
+}
+
+function findWeakestLink(arr){
+    let weakest = arr[0]
+
+    for (let i = 1; i < arr.length; i++){
+        if (weakest.skill > arr[i].skill){
+            weakest = arr[i]
+        }
+    }
+    return weakest;
+}
+function findStrongestLink(arr){
+    let strongest = arr[0]
+
+    for (let i = 1; i < arr.length; i++){
+        if (strongest.skill < arr[i].skill){
+            strongest = arr[i]
+        }
+    }
+    return strongest;
 }
 
 function classAvg(){
@@ -107,10 +149,17 @@ function classAvg(){
 
     let avg = total / students.length;
 
-    console.log(avg)
+    console.log("Class Average: " + avg)
     return avg
 }
 
+function printGroups(){
+    for (let i = 0; i < groups.length; i++){
+        console.log("==================")
+        groups[i].printStudents();
+        console.log("==================")
+    }
+}
 
 // students.shuffle()
 // console.log(students)
